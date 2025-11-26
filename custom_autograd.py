@@ -30,7 +30,7 @@ class Variable:
 
     def __add__(self, other):
         other = other if isinstance(other, Variable) else Variable(np.float16(other), require_grad=False)
-        out = Variable(self.value + other.value)
+        out = Variable(self.value + other.value, require_grad=self.require_grad or other.require_grad)
 
         def _backward():
             if self.require_grad:
@@ -44,7 +44,7 @@ class Variable:
 
     def __mul__(self, other):
         other = other if isinstance(other, Variable) else Variable(np.float16(other), require_grad=False)
-        out = Variable(self.value * other.value)
+        out = Variable(self.value * other.value, require_grad=self.require_grad or other.require_grad)
 
         def _backward():
             if self.require_grad:
@@ -58,7 +58,7 @@ class Variable:
 
     def __sub__(self, other):
         other = other if isinstance(other, Variable) else Variable(np.float16(other), require_grad=False)
-        out = Variable(self.value - other.value)
+        out = Variable(self.value - other.value, require_grad=self.require_grad or other.require_grad)
 
         def _backward():
             if self.require_grad:
@@ -71,7 +71,7 @@ class Variable:
         return out
 
     def abs(self):
-        out = Variable(np.abs(self.value))
+        out = Variable(np.abs(self.value), require_grad=self.require_grad)
         out._prev = {self}
         def _backward():
             if self.require_grad:
@@ -81,7 +81,7 @@ class Variable:
 
     def __truediv__(self, other):
         other = other if isinstance(other, Variable) else Variable(np.float16(other), require_grad=False)
-        out = Variable(self.value/(other.value))
+        out = Variable((self.value/(other.value)), require_grad=(self.require_grad or other.require_grad))
 
         out._prev = {self, other}
         def _backward():
@@ -94,7 +94,7 @@ class Variable:
         return out
 
     def sin(self):
-        out = Variable(np.sin(self.value))
+        out = Variable(np.sin(self.value), require_grad=self.require_grad)
         out._prev = {self}
         def _backward():
             if self.require_grad:
