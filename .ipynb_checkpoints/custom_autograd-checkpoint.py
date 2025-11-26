@@ -70,15 +70,6 @@ class Variable:
         out._prev = {self, other}
         return out
 
-    def abs(self):
-        out = Variable(np.abs(self.value))
-        out._prev = {self}
-        def _backward():
-            if self.require_grad:
-                self.grad += out.grad if self.value >= 0 else -out.grad
-        out._backward = _backward
-        return out
-
     def __truediv__(self, other):
         other = other if isinstance(other, Variable) else Variable(np.float16(other), require_grad=False)
         out = Variable(self.value/(other.value))
