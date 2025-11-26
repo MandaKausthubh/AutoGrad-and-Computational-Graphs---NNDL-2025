@@ -45,7 +45,7 @@ class CustomTensorVariable:
 
     def __sub__(self, other):
         other = other if isinstance(other, CustomTensorVariable) else CustomTensorVariable(np.array(other, dtype=np.float16))
-        out = CustomTensorVariable(self.value + other.value, require_grad=self.require_grad or other.require_grad)
+        out = CustomTensorVariable(self.value - other.value, require_grad=self.require_grad or other.require_grad)
 
         def _backward():
             if self.require_grad:
@@ -58,7 +58,7 @@ class CustomTensorVariable:
         return out
 
     def ReLU(self):
-        out = CustomTensorVariable(np.maximum(self.value, 0))
+        out = CustomTensorVariable(np.maximum(self.value, 0), require_grad=self.require_grad)
         out._prev = {self}
         def _backward():
             if self.require_grad:
@@ -67,7 +67,7 @@ class CustomTensorVariable:
         return out
 
     def matmul(self, other):
-        other = other if isinstance(other, CustomTensorVariable) else CustomTensorVariable(np.array(other, dtype=np.float16))
+        other = other if isinstance(other, CustomTensorVariable) else CustomTensorVariable(np.array(other, dtype=np.float16), require_grad=False)
         out = CustomTensorVariable(np.matmul(self.value, other.value), require_grad = self.require_grad or other.require_grad)
 
         def _backward():
